@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dotswitch CX | Growth Engineered</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&display=swap');
+
+        :root {
+            --bg-cream: #FFFBF5;
+            --text-dark: #1A1A1A;
+            --accent-lime: #D6F379;
+            --accent-pink: #F5D0E6;
+            --accent-yellow: #FBE6CA;
+            --accent-blue: #CDE6F5;
+        }
+
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Blob Animation Background */
+        .blob-cont {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: var(--bg-cream);
+        }
+        
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-pink); animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: var(--accent-lime); animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: var(--accent-yellow); animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        /* Hero Animation Container */
+        .hero-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible; /* Changed to visible so orbits don't get clipped */
+        }
+
+        .pulse-ring {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid rgba(0,0,0,0.1);
+            animation: ripple 3s infinite linear;
+        }
+
+        .pulse-ring:nth-child(2) { animation-delay: 1s; border-color: rgba(214, 243, 121, 0.6); }
+        .pulse-ring:nth-child(3) { animation-delay: 2s; border-color: rgba(245, 208, 230, 0.6); }
+
+        @keyframes ripple {
+            0% { width: 0; height: 0; opacity: 1; border-width: 8px; }
+            100% { width: 600px; height: 600px; opacity: 0; border-width: 0px; }
+        }
+
+        /* Custom Buttons */
+        .btn-primary {
+            background-color: var(--accent-lime);
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        }
+        .btn-primary:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px rgba(0,0,0,1);
+        }
+        .btn-primary:active {
+            transform: translate(0, 0);
+            box-shadow: 2px 2px 0px rgba(0,0,0,1);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid #1a1a1a;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        /* Noise Texture Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Smooth Reveal Class */
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        /* Marquee Animation */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        
+        .marquee-content {
+            display: inline-flex;
+            animation: scroll 40s linear infinite;
+        }
+        
+        .marquee-content.reverse {
+            animation-direction: reverse;
+        }
+
+        .marquee-content:hover {
+            animation-play-state: paused;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            margin-right: 1rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 500;
+            color: #374151;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+        
+        .pill:hover {
+            background: #fff;
+            transform: scale(1.05);
+            border-color: #000;
+        }
+
+        /* Client Logo Styling */
+        .client-logo {
+            transition: all 0.3s ease;
+            mix-blend-mode: multiply;
+        }
+        
+        .client-logo:hover {
+            transform: scale(1.1);
+        }
+
+        /* Feature Floaters */
+        .feature-float {
+            position: absolute;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: float-badge 3s ease-in-out infinite;
+        }
+
+        @keyframes float-badge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="selection:bg-lime-200">
+
+    <!-- Noise Overlay -->
+    <div class="noise"></div>
+
+    <!-- Blob Background -->
+    <div class="blob-cont">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 left-0 bg-white/60 backdrop-blur-md border-b border-black/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 group cursor-pointer" onclick="window.scrollTo(0,0)">
+                <img src="https://res.cloudinary.com/do7w7isgi/image/upload/v1768156719/Untitled_256_x_256_px_yhlwhz.png" alt="Dotswitch Logo" class="w-10 h-10 object-contain group-hover:rotate-12 transition-transform">
+                <span class="font-bold text-xl tracking-tight">dotswitch.cx</span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-gray-800 items-center">
+                <a href="#philosophy" class="hover:text-pink-600 transition-colors">Philosophy</a>
+                <a href="#services" class="hover:text-pink-600 transition-colors">Services</a>
+                <a href="#products" class="hover:text-pink-600 transition-colors">Products</a>
+                <a href="https://calendly.com/siddharth3098/one-on-one-connect" target="_blank" class="btn-secondary px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider">Book a Call</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen pt-32 pb-10 px-6 flex flex-col items-center justify-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm mb-8 border border-gray-100 reveal-up">
+                <span class="w-2 h-2 rounded-full bg-lime-400"></span>
+                <span class="text-xs font-semibold uppercase tracking-widest text-gray-500">Full Stack CX Growth</span>
+            </div>
+            
+            <h1 class="text-6xl md:text-8xl font-medium mb-8 leading-[1.1] reveal-up text-gray-900">
+                Connect the <i class="font-serif text-pink-500">dots</i>.<br>
+                Flip the <i class="font-serif text-lime-600">switch</i>.
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto mb-12 reveal-up leading-relaxed">
+                We engineer growth for D2C & SaaS brands. From 0-to-1 scaling to building AI that sounds just like you.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center reveal-up">
+                <a href="https://calendly.com/siddharth3098/one-on-one-connect" target="_blank" class="btn-primary px-8 py-4 rounded-xl text-lg font-bold">
+                    Book a Call
+                </a>
+                <a href="mailto:siddharth@dotswitch.space" class="px-8 py-4 text-gray-600 hover:text-black font-medium underline decoration-2 decoration-lime-300 underline-offset-4">
+                    Email Our Team
+                </a>
+            </div>
+        </div>
+
+        <!-- NEW Dynamic Hero Animation: Neural Mesh -->
+        <div class="mt-16 relative w-full max-w-7xl h-[650px] hidden md:flex justify-center items-center reveal-up mb-20 hero-canvas-container">
+            <canvas id="hero-network" class="absolute inset-0 w-full h-full z-0"></canvas>
+            
+            <!-- Central "Core" Overlay -->
+            <div class="relative z-10 flex items-center justify-center pointer-events-none">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="w-32 h-32 bg-white rounded-full shadow-2xl flex items-center justify-center border border-gray-100 z-20 relative">
+                    <img src="https://res.cloudinary.com/do7w7isgi/image/upload/v1768156719/Untitled_256_x_256_px_yhlwhz.png" class="w-16 h-16 object-contain" alt="Core">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust/Logos Section -->
+    <section class="py-16 border-t border-b border-black/5 bg-white/40 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-10">Trusted by modern brands</p>
+            <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20">
+                <img src="https://ithought.co.in/wp-content/uploads/2024/06/ithought-logoregistered2.jpg.png" class="client-logo h-16 md:h-20 object-contain" alt="iThought">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2MnotHGovF5HIOuYh76PSWbjBJ6XEKaeemA&s" class="client-logo h-16 md:h-20 object-contain" alt="Client">
+                <img src="https://storage.googleapis.com/gd-prod/images/a910d418-7123-4bc4-aa3b-ef7e25e74ae6.60c498c559810aa0.webp" class="client-logo h-16 md:h-20 object-contain" alt="Google/GD Prod">
+                <img src="https://cdn.pixabay.com/photo/2021/12/14/22/29/meta-6871457_1280.png" class="client-logo h-16 md:h-20 object-contain" alt="Meta">
+                <img src="https://firebase.google.com/static/images/brand-guidelines/logo-logomark.png" class="client-logo h-16 md:h-20 object-contain" alt="Firebase">
+            </div>
+        </div>
+    </section>
+
+    <!-- Marquee / Right Fit Section -->
+    <section class="py-24 overflow-hidden relative">
+        <div class="text-center mb-16 px-6">
+            <h2 class="text-4xl md:text-5xl font-serif mb-4 reveal-up">We are the Right Fit for you.</h2>
+            <div class="h-1 w-20 bg-lime-400 mx-auto rounded-full"></div>
+        </div>
+        <div class="marquee-container mb-6 reveal-up">
+            <div class="marquee-content">
+                <div class="flex items-center">
+                    <span class="pill">🚀 D2C Founders</span>
+                    <span class="pill">💼 SaaS CXOs</span>
+                    <span class="pill">📈 Growth Leads</span>
+                    <span class="pill">🛍️ E-commerce Brands</span>
+                    <span class="pill">💡 Tech Startups</span>
+                    <span class="pill">🤝 Customer Success VPs</span>
+                    <span class="pill">📱 Mobile First</span>
+                    <span class="pill">🧠 AI Native</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="pill">🚀 D2C Founders</span>
+                    <span class="pill">💼 SaaS CXOs</span>
+                    <span class="pill">📈 Growth Leads</span>
+                    <span class="pill">🛍️ E-commerce Brands</span>
+                    <span class="pill">💡 Tech Startups</span>
+                    <span class="pill">🤝 Customer Success VPs</span>
+                    <span class="pill">📱 Mobile First</span>
+                    <span class="pill">🧠 AI Native</span>
+                </div>
+            </div>
+        </div>
+        <div class="marquee-container mb-6 reveal-up">
+            <div class="marquee-content reverse">
+                 <div class="flex items-center">
+                    <span class="pill">⚡ Scaling 0 to 1</span>
+                    <span class="pill">🔄 Retention Loops</span>
+                    <span class="pill">📊 Data Driven</span>
+                    <span class="pill">💬 Brand Voice</span>
+                    <span class="pill">🤖 Custom AI Tools</span>
+                    <span class="pill">🎯 GTM Strategy</span>
+                    <span class="pill">🌍 Global Reach</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="pill">⚡ Scaling 0 to 1</span>
+                    <span class="pill">🔄 Retention Loops</span>
+                    <span class="pill">📊 Data Driven</span>
+                    <span class="pill">💬 Brand Voice</span>
+                    <span class="pill">🤖 Custom AI Tools</span>
+                    <span class="pill">🎯 GTM Strategy</span>
+                    <span class="pill">🌍 Global Reach</span>
+                </div>
+            </div>
+        </div>
+        <div class="marquee-container reveal-up">
+            <div class="marquee-content">
+                <div class="flex items-center">
+                    <span class="pill">✨ Product Discovery</span>
+                    <span class="pill">📥 Lead Gen</span>
+                    <span class="pill">🛠️ Workflow Automation</span>
+                    <span class="pill">🔍 SEO Dominance</span>
+                    <span class="pill">🎓 Cohort Analysis</span>
+                    <span class="pill">📢 Digital Marketing</span>
+                    <span class="pill">💎 User Experience</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="pill">✨ Product Discovery</span>
+                    <span class="pill">📥 Lead Gen</span>
+                    <span class="pill">🛠️ Workflow Automation</span>
+                    <span class="pill">🔍 SEO Dominance</span>
+                    <span class="pill">🎓 Cohort Analysis</span>
+                    <span class="pill">📢 Digital Marketing</span>
+                    <span class="pill">💎 User Experience</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services (How We Do It) -->
+    <section id="services" class="py-20 px-6 bg-white/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-up">
+                <div>
+                    <p class="uppercase tracking-widest text-xs font-bold text-gray-500 mb-2">The Process</p>
+                    <h2 class="text-5xl md:text-6xl text-gray-900">How we do it.</h2>
+                </div>
+                <p class="max-w-md text-gray-600 mt-6 md:mt-0 text-lg">
+                    We break down growth into three distinct phases. Consulting that actually executes.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Services Cards -->
+                <div class="bg-[#F5D0E6] rounded-[2rem] p-8 md:p-10 reveal-up hover:scale-[1.02] transition-transform duration-300 shadow-sm border border-black/5">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-6 text-2xl shadow-sm">🌱</div>
+                    <h3 class="text-3xl mb-4 font-semibold text-gray-900">The Spark</h3>
+                    <p class="text-gray-800 mb-8 leading-relaxed font-medium opacity-80">
+                        Helping you grow from 0 to 1. We figure out the research, the GTM, and the reach plan before the first prototype exists.
+                    </p>
+                    <div class="bg-white/40 rounded-xl p-4 space-y-2">
+                        <div class="flex items-center gap-2 text-sm text-gray-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            User Research
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#FBE6CA] rounded-[2rem] p-8 md:p-10 reveal-up hover:scale-[1.02] transition-transform duration-300 shadow-sm border border-black/5">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-6 text-2xl shadow-sm">🔥</div>
+                    <h3 class="text-3xl mb-4 font-semibold text-gray-900">The Fire</h3>
+                    <p class="text-gray-800 mb-8 leading-relaxed font-medium opacity-80">
+                        Awareness and adoption. We design the digital marketing workflows that turn heads and build the funnel.
+                    </p>
+                    <div class="bg-white/40 rounded-xl p-4 space-y-2">
+                        <div class="flex items-center gap-2 text-sm text-gray-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Brand Awareness
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#D6F379] rounded-[2rem] p-8 md:p-10 reveal-up hover:scale-[1.02] transition-transform duration-300 shadow-sm border border-black/5">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-6 text-2xl shadow-sm">🚀</div>
+                    <h3 class="text-3xl mb-4 font-semibold text-gray-900">The Fuel</h3>
+                    <p class="text-gray-800 mb-8 leading-relaxed font-medium opacity-80">
+                        Retention is sanity. We decode usage metrics to build cohort knowledge and keep users coming back.
+                    </p>
+                    <div class="bg-white/40 rounded-xl p-4 space-y-2">
+                        <div class="flex items-center gap-2 text-sm text-gray-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Retention Loops
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products (Feature Blocks) -->
+    <section id="products" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto space-y-24">
+            
+            <!-- Vero Block -->
+            <div class="grid md:grid-cols-2 gap-12 items-center reveal-up">
+                <div class="order-2 md:order-1">
+                    <div class="bg-[#CDE6F5] rounded-[2.5rem] p-8 h-96 relative overflow-visible flex items-center justify-center shadow-lg border border-black/5 group">
+                        
+                        <!-- Main Logo (Bigger) -->
+                        <img src="https://res.cloudinary.com/do7w7isgi/image/upload/v1770010555/Vero_3_ad3zl0.png" class="w-40 h-40 md:w-48 md:h-48 rounded-full shadow-2xl z-10 relative bg-white object-contain" alt="Vero">
+                        
+                        <!-- Floating Pills -->
+                        <div class="feature-float top-20 left-10 md:left-12" style="animation-delay: 0s;">✍️ Content Strategy</div>
+                        <div class="feature-float bottom-24 left-10 md:left-8" style="animation-delay: 1s;">🔍 SEO Optimized</div>
+                        <div class="feature-float top-24 right-10 md:right-8" style="animation-delay: 1.5s;">📢 Social Reach</div>
+                        <div class="feature-float bottom-16 right-12 md:right-16" style="animation-delay: 0.5s;">🤖 Brand Voice</div>
+
+                    </div>
+                </div>
+                <div class="order-1 md:order-2 space-y-6">
+                    <span class="text-xs font-bold tracking-widest text-blue-400 uppercase">Content AI</span>
+                    <h2 class="text-5xl font-medium text-gray-900">Vero.</h2>
+                    <h3 class="text-3xl text-gray-700 italic font-serif">High-quality content that sounds like you.</h3>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        An AI Consult that builds content and reach plans over your social and web channels. Custom trained on your brand voice, built for SEO.
+                    </p>
+                    <div class="pt-4">
+                        <a href="https://vero.dotswitch.space" target="_blank" class="btn-primary bg-blue-200 hover:bg-blue-300 px-8 py-3 rounded-xl font-bold inline-flex items-center gap-2">
+                            Launch Vero
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mira Block -->
+            <div class="grid md:grid-cols-2 gap-12 items-center reveal-up">
+                <div class="space-y-6">
+                    <span class="text-xs font-bold tracking-widest text-purple-400 uppercase">Support AI</span>
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-5xl font-medium text-gray-900">Mira.</h2>
+                        <span class="px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-xs font-bold uppercase text-gray-500">Coming Soon</span>
+                    </div>
+                    <h3 class="text-3xl text-gray-700 italic font-serif">Instant answers, happy customers.</h3>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        An AI CX assistant that helps your existing customers with any queries. Handles support tickets and drives product discovery directly within your website.
+                    </p>
+                    <div class="pt-4">
+                        <a href="mailto:siddharth@dotswitch.space?subject=Mira%20Waitlist" class="px-8 py-3 border-2 border-dashed border-purple-300 rounded-xl font-bold text-purple-600 hover:bg-purple-50 transition-colors inline-block">
+                            Email to Join Waitlist
+                        </a>
+                    </div>
+                </div>
+                <div>
+                     <div class="bg-[#EADCF5] rounded-[2.5rem] p-8 h-96 relative overflow-visible flex items-center justify-center shadow-lg border border-black/5">
+                        
+                        <!-- Main Logo (Bigger) -->
+                        <img src="https://res.cloudinary.com/do7w7isgi/image/upload/v1767290704/mira_pewimz.png" class="w-40 h-40 md:w-48 md:h-48 object-contain z-10 drop-shadow-2xl relative" alt="Mira Logo">
+
+                         <!-- Floating Pills -->
+                         <div class="feature-float top-20 left-10 md:left-8" style="animation-delay: 0.2s;">💬 Instant Chat</div>
+                         <div class="feature-float bottom-24 left-10 md:left-12" style="animation-delay: 1.2s;">🎫 Ticket Support</div>
+                         <div class="feature-float top-24 right-10 md:right-8" style="animation-delay: 0.8s;">🛍️ Product Discovery</div>
+                         <div class="feature-float bottom-16 right-12 md:right-16" style="animation-delay: 1.8s;">✨ 24/7 Availability</div>
+
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Custom Block Banner -->
+             <div class="bg-gray-900 rounded-[2rem] p-12 text-center text-white relative overflow-hidden reveal-up">
+                 <div class="relative z-10">
+                     <h3 class="text-3xl md:text-4xl font-serif mb-4">Need something else?</h3>
+                     <p class="text-gray-400 max-w-2xl mx-auto mb-8">
+                         We build custom GTM tools tailored to your workflow. If you can dream it, we can engineer it.
+                     </p>
+                     <a href="https://calendly.com/siddharth3098/one-on-one-connect" target="_blank" class="inline-block bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-lime-300 transition-colors">
+                         Discuss Custom Build
+                     </a>
+                 </div>
+                 <!-- Decorative circle -->
+                 <div class="absolute -right-20 -top-20 w-64 h-64 bg-gray-800 rounded-full opacity-50"></div>
+                 <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-gray-800 rounded-full opacity-50"></div>
+             </div>
+
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-serif text-center mb-16 reveal-up">What founders say.</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-up">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-1 text-yellow-400 mb-4">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-600 mb-6 italic">"Dotswitch helped us identify our core user cohort before we even spent a dollar on ads. The 'Spark' phase is real."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Annie" alt="User">
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Sarah Jenkins</p>
+                            <p class="text-xs text-gray-400">Founder, EcomFlow</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-1 text-yellow-400 mb-4">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-600 mb-6 italic">"Vero completely changed our SEO game. We went from writing 1 blog a week to 10 high-quality pieces that actually sound like us."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mark" alt="User">
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Mark D.</p>
+                            <p class="text-xs text-gray-400">CMO, TechScale</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Testimonial 3 -->
+                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-1 text-yellow-400 mb-4">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-600 mb-6 italic">"The custom AI tool they built for our internal support workflow saved us 20 hours a week. Incredible ROI."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Priya" alt="User">
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Priya S.</p>
+                            <p class="text-xs text-gray-400">Ops Lead, FinGrow</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-white pt-20 pb-10 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 mb-16">
+                <div>
+                    <img src="https://res.cloudinary.com/do7w7isgi/image/upload/v1768156719/Untitled_256_x_256_px_yhlwhz.png" alt="Dotswitch" class="w-12 h-12 mb-6">
+                    <h2 class="text-4xl font-serif mb-6">Let's switch things up.</h2>
+                    <p class="text-gray-600 max-w-sm mb-8">
+                        Ready to stop guessing and start growing? Get your free consulting audit today.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://calendly.com/siddharth3098/one-on-one-connect" target="_blank" class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-lime-400 hover:text-black transition-colors">
+                            Book a Call
+                        </a>
+                        <a href="mailto:siddharth@dotswitch.space" class="border border-gray-300 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors">
+                            Email Us
+                        </a>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-8 text-sm">
+                    <div>
+                        <h4 class="font-bold mb-4 uppercase tracking-widest text-xs text-gray-400">Services</h4>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><span class="cursor-default">Consulting</span></li>
+                            <li><span class="cursor-default">User Research</span></li>
+                            <li><span class="cursor-default">Digital Marketing</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4 uppercase tracking-widest text-xs text-gray-400">Products</h4>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><a href="https://vero.dotswitch.space" class="hover:text-black">Vero AI</a></li>
+                            <li><span class="cursor-default text-gray-400">Mira AI (Soon)</span></li>
+                            <li><span class="cursor-default text-gray-400">Custom Tools</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-400 font-medium uppercase tracking-wider">
+                <p>&copy; 2024 Dotswitch CX. All rights reserved.</p>
+                <div class="flex gap-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-black">Twitter</a>
+                    <a href="#" class="hover:text-black">LinkedIn</a>
+                    <a href="#" class="hover:text-black">Instagram</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animate elements with class .reveal-up
+        gsap.utils.toArray('.reveal-up').forEach((elem) => {
+            gsap.to(elem, {
+                scrollTrigger: {
+                    trigger: elem,
+                    start: "top 85%", 
+                    toggleActions: "play none none reverse"
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+        });
+
+        // ----------------------------------------------
+        // DYNAMIC HERO ANIMATION (Orbital System)
+        // ----------------------------------------------
+        const canvas = document.getElementById('hero-network');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let topicNodes = [];
+        
+        // Brand colors for the nodes
+        const brandColors = ['#D6F379', '#F5D0E6', '#FBE6CA', '#CDE6F5'];
+        
+        // Topics distributed in layers (inner to outer)
+        const orbitalLayers = [
+            { radius: 150, topics: ["CX", "CRM", "GTM"], speed: 0.003 },
+            { radius: 230, topics: ["Retention", "Custom AI RAG", "ABM"], speed: 0.002 },
+            { radius: 310, topics: ["Performance Growth", "Supply Chain", "Product Discovery", "Audience"], speed: 0.0015 }
+        ];
+
+        let isPaused = false;
+        
+        // Pause animation on hover
+        canvas.addEventListener('mouseenter', () => { isPaused = true; });
+        canvas.addEventListener('mouseleave', () => { isPaused = false; });
+        
+        // Mouse for particle repulsion (mesh background)
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+        
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; // Slower particles
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+                this.color = "rgba(0,0,0,0.05)"; // Subtle grey
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wrap around edges
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        class TopicNode {
+            constructor(text, layerIndex, angleOffset) {
+                this.text = text;
+                this.layerIndex = layerIndex;
+                this.angle = angleOffset;
+                this.radius = orbitalLayers[layerIndex].radius;
+                this.baseSpeed = orbitalLayers[layerIndex].speed;
+                // Assign a consistent color based on text hash or index
+                this.color = brandColors[Math.floor(Math.random() * brandColors.length)];
+                this.x = 0;
+                this.y = 0;
+            }
+
+            update(cx, cy) {
+                if (!isPaused) {
+                    this.angle += this.baseSpeed;
+                }
+                this.x = cx + Math.cos(this.angle) * this.radius;
+                this.y = cy + Math.sin(this.angle) * this.radius;
+            }
+
+            draw() {
+                // Connection line to center (faint)
+                let cx = width / 2;
+                let cy = height / 2;
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(0,0,0,0.05)";
+                ctx.lineWidth = 1;
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(this.x, this.y);
+                ctx.stroke();
+
+                // Draw Node Circle
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+
+                // Text Settings
+                ctx.font = "bold 14px Inter"; // Bigger text
+                const textMetrics = ctx.measureText(this.text);
+                const textWidth = textMetrics.width;
+                const pillPadding = 16;
+                const pillHeight = 32;
+                
+                // Draw Pill Background
+                ctx.beginPath();
+                ctx.roundRect(this.x - textWidth/2 - pillPadding/2, this.y + 14, textWidth + pillPadding, pillHeight, 16);
+                ctx.fillStyle = this.color; // Use orbital color for pill
+                ctx.fill();
+                
+                // Add white border to pill to make it pop
+                ctx.strokeStyle = "#ffffff"; 
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw Text
+                ctx.fillStyle = "#1A1A1A";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(this.text, this.x, this.y + 14 + pillHeight/2);
+            }
+        }
+
+        function init() {
+            const container = canvas.parentElement;
+            width = canvas.width = container.offsetWidth;
+            height = canvas.height = container.offsetHeight;
+            
+            particles = [];
+            // Create background mesh particles
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle());
+            }
+
+            topicNodes = [];
+            // Initialize orbital nodes
+            orbitalLayers.forEach((layer, layerIdx) => {
+                layer.topics.forEach((topic, topicIdx) => {
+                    const angleStep = (Math.PI * 2) / layer.topics.length;
+                    // Offset angle by layer to create spiral look
+                    const angleOffset = (topicIdx * angleStep) + (layerIdx * 0.5); 
+                    topicNodes.push(new TopicNode(topic, layerIdx, angleOffset));
+                });
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            let cx = width / 2;
+            let cy = height / 2;
+
+            // 1. Draw Background Mesh (Subtle)
+            for (let i = 0; i < particles.length; i++) {
+                let p1 = particles[i];
+                p1.update();
+                p1.draw();
+                // Simple connections
+                for (let j = i; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p1.x - p2.x;
+                    let dy = p1.y - p2.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = "rgba(0,0,0,0.03)";
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // 2. Draw Orbital Rings (Guides)
+            orbitalLayers.forEach(layer => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, layer.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = "rgba(0,0,0,0.15)";
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+
+            // 3. Draw Topics
+            topicNodes.forEach(node => {
+                node.update(cx, cy);
+                node.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+    </script>
+</body>
+</html>
